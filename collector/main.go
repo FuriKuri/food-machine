@@ -6,9 +6,11 @@ import (
 	"log"
 	"net"
 
+	"net/http"
+
+	pb "github.com/furikuri/fruit-generator/fruit"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	pb "github.com/furikuri/fruit-generator/fruit"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -18,13 +20,27 @@ const (
 
 type server struct{}
 
-
 func (s *server) Deliver(ctx context.Context, in *pb.Fruit) (*pb.Empty, error) {
 	log.Print(in.Name)
 	return &pb.Empty{}, nil
 }
 
+func handler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.Error(w, "Not found", http.StatusNotFound)
+		return
+	}
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	http.ServeFile(w, r, "index.html")
+}
+
 func main() {
+	http.HandleFunc("/", handler)
+	go http.ListenAndServe(":8080", nil)
+	
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
