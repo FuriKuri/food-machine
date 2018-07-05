@@ -12,6 +12,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -23,6 +25,30 @@ type server struct{}
 func (s *server) Deliver(ctx context.Context, in *pb.Fruit) (*pb.Empty, error) {
 	log.Print(in.Name)
 	return &pb.Empty{}, nil
+}
+
+var upgrader = websocket.Upgrader{} // use default options
+
+func fruits(w http.ResponseWriter, r *http.Request) {
+	c, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Print("upgrade:", err)
+		return
+	}
+	defer c.Close()
+	for {
+		mt, message, err := c.ReadMessage()
+		if err != nil {
+			log.Println("read:", err)
+			break
+		}
+		log.Printf("recv: %s", message)
+		err = c.WriteMessage(mt, message)
+		if err != nil {
+			log.Println("write:", err)
+			break
+		}
+	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -39,6 +65,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/fruits", fruits)
 	go http.ListenAndServe(":8080", nil)
 
 	lis, err := net.Listen("tcp", port)
