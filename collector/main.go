@@ -3,7 +3,6 @@
 package main
 
 import (
-	"log"
 	"net"
 
 	"net/http"
@@ -14,6 +13,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	
 	"github.com/gorilla/websocket"
+	"log"
 )
 
 const (
@@ -29,13 +29,18 @@ func (s *server) Deliver(ctx context.Context, in *pb.Fruit) (*pb.Empty, error) {
 
 var upgrader = websocket.Upgrader{} // use default options
 
+var listenerSockets = make(map[chan string]bool)
+
 func fruits(w http.ResponseWriter, r *http.Request) {
+	channel := make(chan string)
+	listenerSockets[channel] = true
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
 		return
 	}
 	defer c.Close()
+	defer delete(listenerSockets, channel)
 	for {
 		mt, message, err := c.ReadMessage()
 		if err != nil {
