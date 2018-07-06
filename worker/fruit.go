@@ -32,6 +32,6 @@ func init() {
 	box = append(box, "🥕 Carrot")
 }
 
-func Pick() string {
+func pick() string {
 	return box[rand.Intn(len(box))]
 }

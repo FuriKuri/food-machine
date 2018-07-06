@@ -25,12 +25,12 @@ func main() {
 	defer conn.Close()
 	c := pb.NewFruitCollectorClient(conn)
 
-	ticker := time.NewTicker(500 * time.Millisecond)
+	ticker := time.NewTicker(700 * time.Millisecond)
 	for t := range ticker.C {
 		fmt.Println("Tick at", t)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
-		_, err = c.Deliver(ctx, &pb.Fruit{Name: Pick(), Worker: machineID})
+		_, err = c.Deliver(ctx, &pb.Fruit{Name: pick(), Worker: machineID})
 		if err != nil {
 			log.Fatalf("could not fruit: %v", err)
 		}
