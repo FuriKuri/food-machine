@@ -8,7 +8,7 @@ import (
 
 	"net/http"
 
-	pb "github.com/furikuri/fruit-generator/food"
+	pb "github.com/furikuri/food-machine/food"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -84,7 +84,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-	pb.RegisterFruitCollectorServer(s, &server{})
+	pb.RegisterFoodCollectorServer(s, &server{})
 	reflection.Register(s)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

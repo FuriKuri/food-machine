@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/furikuri/fruit-generator/food"
+	pb "github.com/furikuri/food-machine/food"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -23,14 +23,14 @@ func main() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	defer conn.Close()
-	c := pb.NewFruitCollectorClient(conn)
+	c := pb.NewFoodCollectorClient(conn)
 
 	ticker := time.NewTicker(700 * time.Millisecond)
 	for t := range ticker.C {
 		fmt.Println("Tick at", t)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
-		_, err = c.Deliver(ctx, &pb.Fruit{Name: pick(), Worker: machineID})
+		_, err = c.Deliver(ctx, &pb.Food{Name: pick(), Worker: machineID})
 		if err != nil {
 			log.Fatalf("could not food: %v", err)
 		}
