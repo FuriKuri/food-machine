@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package food;
+
+service FoodCollector {
+  rpc Deliver (Food) returns (Empty) {}
+}
+
+message Food {
+  string name = 1;
+  string worker = 2;
+}
+
+message Empty {
+
+}

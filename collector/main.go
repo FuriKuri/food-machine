@@ -1,4 +1,4 @@
-//go:generate protoc -I ../fruit --go_out=plugins=grpc:../fruit ../fruit/fruit.proto
+//go:generate protoc -I ../food --go_out=plugins=grpc:../food ../food/food.proto
 
 package main
 
@@ -8,7 +8,7 @@ import (
 
 	"net/http"
 
-	pb "github.com/furikuri/fruit-generator/fruit"
+	pb "github.com/furikuri/fruit-generator/food"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -26,7 +26,7 @@ type server struct{}
 
 var listenerSockets = make(map[chan string]bool)
 
-func (s *server) Deliver(ctx context.Context, in *pb.Fruit) (*pb.Empty, error) {
+func (s *server) Deliver(ctx context.Context, in *pb.Food) (*pb.Empty, error) {
 	log.Print(in.Name)
 	for listener := range listenerSockets {
 		listener <- in.Name
@@ -36,7 +36,7 @@ func (s *server) Deliver(ctx context.Context, in *pb.Fruit) (*pb.Empty, error) {
 
 var upgrader = websocket.Upgrader{} // use default options
 
-func fruits(w http.ResponseWriter, r *http.Request) {
+func food(w http.ResponseWriter, r *http.Request) {
 	channel := make(chan string)
 	listenerSockets[channel] = true
 	c, err := upgrader.Upgrade(w, r, nil)
@@ -49,10 +49,10 @@ func fruits(w http.ResponseWriter, r *http.Request) {
 	for {
 		var msg string
 		select {
-		case fruit := <-channel:
-			msg = fruit
+		case food := <-channel:
+			msg = food
 		case <-time.After(30 * time.Second):
-			msg = "no fruits"
+			msg = "no food"
 		}
 		err = c.WriteMessage(websocket.TextMessage, []byte(msg))
 		if err != nil {
@@ -76,7 +76,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", handler)
-	http.HandleFunc("/fruits", fruits)
+	http.HandleFunc("/food", food)
 	go http.ListenAndServe(":8080", nil)
 
 	lis, err := net.Listen("tcp", port)

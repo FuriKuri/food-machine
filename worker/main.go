@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	pb "github.com/furikuri/fruit-generator/fruit"
+	pb "github.com/furikuri/fruit-generator/food"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
@@ -32,7 +32,7 @@ func main() {
 		defer cancel()
 		_, err = c.Deliver(ctx, &pb.Fruit{Name: pick(), Worker: machineID})
 		if err != nil {
-			log.Fatalf("could not fruit: %v", err)
+			log.Fatalf("could not food: %v", err)
 		}
 	}
 	log.Printf("FINISHED")
