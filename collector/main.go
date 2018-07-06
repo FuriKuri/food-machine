@@ -28,7 +28,7 @@ var listenerSockets = make(map[chan string]bool)
 
 func (s *server) Deliver(ctx context.Context, in *pb.Fruit) (*pb.Empty, error) {
 	log.Print(in.Name)
-	for listener, _ := range listenerSockets {
+	for listener := range listenerSockets {
 		listener <- in.Name
 	}
 	return &pb.Empty{}, nil
