@@ -10,6 +10,7 @@ window.addEventListener("load", function(evt) {
         var d = document.createElement("div");
         d.innerHTML = message;
         output.appendChild(d);
+        window.scrollTo(0,document.body.scrollHeight);
     };
     document.getElementById("open").onclick = function(evt) {
         if (ws) {
