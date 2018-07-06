@@ -5,16 +5,20 @@
 		<script>  
 window.addEventListener("load", function(evt) {
     var output = document.getElementById("output");
-    var input = document.getElementById("input");
+    var stats = document.getElementById("stats");
     var ws;
     var print = function(message) {
-        var d = document.createElement("div");
-        d.innerHTML = message;
-        output.appendChild(d);
-        window.scrollTo(0,document.body.scrollHeight);
+        if (message.startsWith("stats: ")) {
+            stats.innerHTML = message.substring(7);
+        } else {
+            var d = document.createElement("div");
+            d.innerHTML = message;
+            output.appendChild(d);
+            window.scrollTo(0,document.body.scrollHeight);
 
-        while (output.childNodes.length > 15) {
-            output.removeChild(output.childNodes[0]) 
+            while (output.childNodes.length > 15) {
+                output.removeChild(output.childNodes[0]) 
+            }
         }
     };
     document.getElementById("open").onclick = function(evt) {
@@ -49,9 +53,9 @@ window.addEventListener("load", function(evt) {
 	</head>
 	<body>
 		<h1>Fruits</h1>
-		<form>
-            <button id="open">Open</button>
-            <button id="close">Close</button>
+        <div id="stats"></div>
+        <form>
+            <button id="open">Start</button>
         </form>
         <div id="output"></div>
 	</body>

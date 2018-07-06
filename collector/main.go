@@ -3,6 +3,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 
 	"html/template"
 	"log"
+	"strconv"
 	"sync/atomic"
 
 	"github.com/gorilla/websocket"
@@ -51,13 +53,7 @@ func food(w http.ResponseWriter, r *http.Request) {
 	defer c.Close()
 	defer delete(listenerSockets, channel)
 	for {
-		var msg string
-		select {
-		case food := <-channel:
-			msg = food
-		case <-time.After(30 * time.Second):
-			msg = "no food"
-		}
+		msg := <-channel
 		err = c.WriteMessage(websocket.TextMessage, []byte(msg))
 		if err != nil {
 			log.Println("write:", err)
@@ -70,10 +66,23 @@ func home(w http.ResponseWriter, r *http.Request) {
 	template.Must(template.ParseFiles("index.html")).Execute(w, r.Host)
 }
 
+func updateStats() {
+	ticker := time.NewTicker(1000 * time.Millisecond)
+	for t := range ticker.C {
+		fmt.Println("Update at", t)
+		rate := atomic.SwapUint64(&ops, 0)
+		for listener := range listenerSockets {
+			listener <- "stats: " + strconv.FormatUint(rate, 10) + " food/second"
+		}
+	}
+}
+
 func main() {
 	http.HandleFunc("/", home)
 	http.HandleFunc("/food", food)
 	go http.ListenAndServe(":8080", nil)
+
+	go updateStats()
 
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
