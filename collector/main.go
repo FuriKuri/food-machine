@@ -14,6 +14,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"log"
+	"sync/atomic"
 
 	"github.com/gorilla/websocket"
 )
@@ -25,9 +26,11 @@ const (
 type server struct{}
 
 var listenerSockets = make(map[chan string]bool)
+var ops uint64
 
 func (s *server) Deliver(ctx context.Context, in *pb.Food) (*pb.Empty, error) {
 	log.Print(in.Name)
+	atomic.AddUint64(&ops, 1)
 	for listener := range listenerSockets {
 		listener <- in.Name
 	}
