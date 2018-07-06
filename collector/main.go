@@ -4,6 +4,7 @@ package main
 
 import (
 	"net"
+	"time"
 
 	"net/http"
 
@@ -11,9 +12,10 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	
-	"github.com/gorilla/websocket"
+
 	"log"
+
+	"github.com/gorilla/websocket"
 )
 
 const (
@@ -26,8 +28,8 @@ var listenerSockets = make(map[chan string]bool)
 
 func (s *server) Deliver(ctx context.Context, in *pb.Fruit) (*pb.Empty, error) {
 	log.Print(in.Name)
-	for listener, _ := range listenerSockets { 
-	    listener <- in.Name
+	for listener, _ := range listenerSockets {
+		listener <- in.Name
 	}
 	return &pb.Empty{}, nil
 }
@@ -45,9 +47,14 @@ func fruits(w http.ResponseWriter, r *http.Request) {
 	defer c.Close()
 	defer delete(listenerSockets, channel)
 	for {
-		fruit := <-channel
-		log.Printf("recv: %s", fruit)
-		err = c.WriteMessage(mt, message)
+		var msg string
+		select {
+		case fruit := <-channel:
+			msg = fruit
+		case <-time.After(30 * time.Second):
+			msg = "no fruits"
+		}
+		err = c.WriteMessage(websocket.TextMessage, []byte(msg))
 		if err != nil {
 			log.Println("write:", err)
 			break
