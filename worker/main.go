@@ -4,13 +4,13 @@ import (
 	"log"
 	"time"
 
+	pb "github.com/furikuri/fruit-generator/fruit"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	pb "github.com/furikuri/fruit-generator/fruit"
 )
 
 const (
-	address     = "localhost:50051"
+	address = "localhost:50051"
 )
 
 func main() {
