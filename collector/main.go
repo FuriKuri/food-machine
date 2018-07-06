@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
+	"html/template"
 	"log"
 	"sync/atomic"
 
@@ -65,20 +66,12 @@ func food(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-	http.ServeFile(w, r, "index.html")
+func home(w http.ResponseWriter, r *http.Request) {
+	template.Must(template.ParseFiles("index.html")).Execute(w, r.Host)
 }
 
 func main() {
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", home)
 	http.HandleFunc("/food", food)
 	go http.ListenAndServe(":8080", nil)
 
