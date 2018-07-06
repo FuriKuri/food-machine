@@ -22,14 +22,17 @@ const (
 
 type server struct{}
 
+var listenerSockets = make(map[chan string]bool)
+
 func (s *server) Deliver(ctx context.Context, in *pb.Fruit) (*pb.Empty, error) {
 	log.Print(in.Name)
+	for listener, _ := range listenerSockets { 
+	    listener <- in.Name
+	}
 	return &pb.Empty{}, nil
 }
 
 var upgrader = websocket.Upgrader{} // use default options
-
-var listenerSockets = make(map[chan string]bool)
 
 func fruits(w http.ResponseWriter, r *http.Request) {
 	channel := make(chan string)
@@ -42,12 +45,8 @@ func fruits(w http.ResponseWriter, r *http.Request) {
 	defer c.Close()
 	defer delete(listenerSockets, channel)
 	for {
-		mt, message, err := c.ReadMessage()
-		if err != nil {
-			log.Println("read:", err)
-			break
-		}
-		log.Printf("recv: %s", message)
+		fruit := <-channel
+		log.Printf("recv: %s", fruit)
 		err = c.WriteMessage(mt, message)
 		if err != nil {
 			log.Println("write:", err)
