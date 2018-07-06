@@ -11,12 +11,16 @@ window.addEventListener("load", function(evt) {
         d.innerHTML = message;
         output.appendChild(d);
         window.scrollTo(0,document.body.scrollHeight);
+
+        while (output.childNodes.length > 15) {
+            output.removeChild(output.childNodes[0]) 
+        }
     };
     document.getElementById("open").onclick = function(evt) {
         if (ws) {
             return false;
         }
-        ws = new WebSocket("ws://localhost:8080/fruits");
+        ws = new WebSocket("ws://192.168.196.135:8080/fruits");
         ws.onopen = function(evt) {
             print("OPEN");
         }
