@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	pb "github.com/furikuri/food-machine/food"
@@ -11,9 +12,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	address = "localhost:50051"
-)
+var address = getEnv("COLLECTOR_HOST", "localhost") + ":50051"
 
 var machineID = pseudoUUID()
 
@@ -47,4 +46,11 @@ func pseudoUUID() string {
 	}
 
 	return fmt.Sprintf("%X-%X-%X-%X-%X", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+}
+
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }
