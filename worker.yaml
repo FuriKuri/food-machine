@@ -6,7 +6,7 @@ metadata:
   labels:
     app: food-worker
 spec:
-  replicas: 1
+  replicas: 0
   selector:
     matchLabels:
       app: food-worker
@@ -28,3 +28,5 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "250m"
+      nodeSelector:
+        type: virtual-kubelet
