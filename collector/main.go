@@ -30,10 +30,12 @@ type server struct{}
 
 var listenerSockets = make(map[chan string]bool)
 var ops uint64
+var worker = make(map[string]bool)
 
 func (s *server) Deliver(ctx context.Context, in *pb.Food) (*pb.Empty, error) {
 	log.Print(in.Name)
 	atomic.AddUint64(&ops, 1)
+	worker[in.Worker] = true
 	for listener := range listenerSockets {
 		listener <- in.Name
 	}
@@ -71,8 +73,10 @@ func updateStats() {
 	for t := range ticker.C {
 		fmt.Println("Update at", t)
 		rate := atomic.SwapUint64(&ops, 0)
+		workerCount := len(worker)
+		worker = make(map[string]bool)
 		for listener := range listenerSockets {
-			listener <- "stats: " + strconv.FormatUint(rate, 10) + " food/second"
+			listener <- "stats: " + strconv.FormatUint(rate, 10) + " food/second - " + strconv.Itoa(workerCount) + " worker"
 		}
 	}
 }
