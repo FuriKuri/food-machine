@@ -1,0 +1,51 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: food-collector-deployment
+  labels:
+    app: food-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: food-collector
+  template:
+    metadata:
+      labels:
+        app: food-collector
+    spec:
+      containers:
+      - name: food-collector
+        image: furikuri/food-collector
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 50051
+          name: grpc
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: food-collector
+spec:
+  type: LoadBalancer
+  selector:
+    app: food-collector
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+    name: http
+  - protocol: TCP
+    port: 50051
+    targetPort: 50051
+    name: grpc

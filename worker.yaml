@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: food-worker-deployment
+  labels:
+    app: food-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: food-worker
+  template:
+    metadata:
+      labels:
+        app: food-worker
+    spec:
+      containers:
+      - name: food-worker
+        image: furikuri/food-worker
+        env:
+          - name: COLLECTOR_HOST
+            value: 35.198.109.217
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
