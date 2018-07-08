@@ -20,7 +20,7 @@ spec:
         image: furikuri/food-worker
         env:
           - name: COLLECTOR_HOST
-            value: 35.198.109.217
+            value: 35.198.166.179
         resources:
           requests:
             memory: "64Mi"
@@ -30,3 +30,35 @@ spec:
             cpu: "250m"
       nodeSelector:
         type: virtual-kubelet
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: static-food-worker-deployment
+  labels:
+    app: food-worker
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: food-worker
+  template:
+    metadata:
+      labels:
+        app: food-worker
+    spec:
+      containers:
+      - name: food-worker
+        image: furikuri/food-worker
+        env:
+          - name: COLLECTOR_HOST
+            value: 35.198.166.179
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: default-pool
