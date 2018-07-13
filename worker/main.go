@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var address = getEnv("COLLECTOR_HOST", "food.furikuri.net") + ":50051"
+var address = getEnv("COLLECTOR_HOST", "35.198.130.0") + ":50051"
 
 var machineID = pseudoUUID()
 

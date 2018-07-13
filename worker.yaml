@@ -20,7 +20,7 @@ spec:
         image: furikuri/food-worker
         env:
           - name: COLLECTOR_HOST
-            value: 35.198.166.179
+            value: 35.198.130.0
         resources:
           requests:
             memory: "64Mi"
@@ -38,7 +38,7 @@ metadata:
   labels:
     app: food-worker
 spec:
-  replicas: 0
+  replicas: 1
   selector:
     matchLabels:
       app: food-worker
@@ -52,7 +52,7 @@ spec:
         image: furikuri/food-worker
         env:
           - name: COLLECTOR_HOST
-            value: 35.198.166.179
+            value: 35.198.130.0
         resources:
           requests:
             memory: "64Mi"

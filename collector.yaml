@@ -30,7 +30,8 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "250m"
-
+      nodeSelector:
+        cloud.google.com/gke-nodepool: default-pool
 ---
 kind: Service
 apiVersion: v1
